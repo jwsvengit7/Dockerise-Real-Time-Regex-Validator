@@ -14,7 +14,7 @@ export class JobsController {
    * @returns The created job
    */
   @Post("/create")
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.ACCEPTED)
   async create(@Body() createJobDto: CreateJobDto): Promise<JobResponse> {
     return this.jobsService.createJob(createJobDto);
   }
@@ -24,6 +24,7 @@ export class JobsController {
    * @returns An array of jobs
    */
   @Get("/")
+  @HttpCode(HttpStatus.OK)
   async findAll(): Promise<JobResponse[]> {
     return this.jobsService.findAll();
   }

@@ -1,35 +1,105 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+import axios from 'axios';
+import './App.css'; // Import normal CSS
 
-function App() {
-  const [count, setCount] = useState(0)
+const socket = io('ws://localhost:3000');
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Jobs {
+  input: string;
+  status: string;
+  createdAt: string;
+  _id: string;
+  updatedAt: string;
 }
 
-export default App
+const App = () => {
+  const [input, setInput] = useState<string>('');
+  const [jobs, setJobs] = useState<Jobs[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    fetchJobs();
+    socket.on('job-status', (updatedJob) => {
+      setJobs((prev: Jobs[]) =>
+        prev.map((job: Jobs) => (job._id === updatedJob.jobId ? updatedJob : job))
+      );
+    });
+    return () => {
+      socket.off('job-status');
+    };
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/jobs/');
+      setJobs(res.data.data);
+    } catch (err) {
+      console.error('Failed to fetch jobs:', err);
+    }
+  };
+
+  const submitJob = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    setLoading(true);
+    try {
+      const res = await axios.post('http://localhost:3000/jobs/create', { input });
+      setJobs((prev: Jobs[]) => [res.data.data, ...prev]);
+      setInput('');
+    } catch (err) {
+      console.error('Submission failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container">
+      <div className="app-box">
+        <h1 className="title">Real-Time Regex Validator</h1>
+
+        <form onSubmit={submitJob} className="form">
+          <input
+            type="text"
+            className="text-input"
+            placeholder="Enter text to validate..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button type="submit" disabled={loading} className="submit-btn">
+            {loading ? 'Submitting...' : 'Submit'}
+          </button>
+        </form>
+
+        <div className="jobs">
+          <h2 className="subtitle">Job History</h2>
+          <div className="job-list">
+            {jobs.map((job) => (
+              <div key={job._id} className="job-card">
+                <p><strong>ID:</strong> {job._id}</p>
+                <p><strong>Input:</strong> {job.input}</p>
+                <p>
+                  <strong>Status:</strong>{' '}
+                  <span
+                    className={
+                      job.status === 'Valid'
+                        ? 'status valid'
+                        : job.status === 'Invalid'
+                        ? 'status invalid'
+                        : 'status pending'
+                    }
+                  >
+                    {job.status}
+                  </span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;

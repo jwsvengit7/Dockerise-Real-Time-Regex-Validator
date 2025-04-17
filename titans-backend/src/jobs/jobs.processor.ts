@@ -23,7 +23,10 @@ export class JobsProcessor implements OnModuleInit {
         if (!rawValue) return;
   
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const parsed: { jobId: string; input: string } = JSON.parse(rawValue);
+        const parsed: { jobId: string; input: string,   
+          status: string,
+          createdAt: string,
+          _id: string} = JSON.parse(rawValue);
   
         const pattern = this.configService.get<string>('REGEX_PATTERN');
         const delay = Number(this.configService.get<number>('PROCESS_DELAY_MS') || 2000);
@@ -40,7 +43,7 @@ const isValid = new RegExp(pattern).test(parsed.input);
         const status = isValid ? 'Valid' : 'Invalid';
   
         await this.jobsService.updateStatus(parsed.jobId, status);
-        const statusDto : JobStatusDto = { jobId: parsed.jobId, status }
+        const statusDto : JobStatusDto = { jobId: parsed.jobId, status:status,_id:parsed._id,createdAt:parsed.createdAt,input:parsed.input }
          this.jobsGateway.broadcastStatus(statusDto);
         await this.redisService.publishJobStatus(statusDto);
   

@@ -26,10 +26,16 @@ export class JobsService {
     });
     await job.save();
 
-    // Send to Kafka
+    /*
+     Publish to Kafka ==================> 
+     */
     await this.kafkaService.produce('regex-jobs', {
       jobId: job._id,
+      status: job.status,
+      createdAt: job.createdAt,
+      _id: job._id,
       input: job.input,
+
       
     });
     
