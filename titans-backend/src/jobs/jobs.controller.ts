@@ -1,19 +1,30 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { JobsService } from './jobs.service';
-import { CreateJobDto } from './dto/create-job.dto';
+import { CreateJobDto } from '../common/dto/request/create-job.dto';
+import { JobResponse } from 'src/common/dto/response/job.response';
 
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
-  @Post()
-  async create(@Body() createJobDto: CreateJobDto) {
+  /**
+   * Create a new job entry
+   * @param createJobDto DTO containing job details
+   * @returns The created job
+   */
+  @Post("/create")
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createJobDto: CreateJobDto): Promise<JobResponse> {
     return this.jobsService.createJob(createJobDto);
   }
 
-  @Get()
-  async findAll() {
+  /**
+   * Get all jobs
+   * @returns An array of jobs
+   */
+  @Get("/")
+  async findAll(): Promise<JobResponse[]> {
     return this.jobsService.findAll();
   }
 }

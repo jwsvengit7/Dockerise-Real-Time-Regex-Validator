@@ -2,9 +2,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateJobDto } from './dto/create-job.dto';
+import { CreateJobDto } from '../common/dto/request/create-job.dto';
 import { Job, JobDocument } from 'src/database/job.schema';
 import { KafkaService } from 'src/kafka/kafka.service';
+import { JobResponse } from 'src/common/dto/response/job.response';
+import { Utils } from 'src/common/utils/utils';
 
 
 @Injectable()
@@ -14,7 +16,7 @@ export class JobsService {
     private kafkaService: KafkaService,
   ) {}
 
-  async createJob(dto: CreateJobDto): Promise<Job> {
+  async createJob(dto: CreateJobDto): Promise<JobResponse> {
     const job = new this.jobModel({
       input: dto.input,
       status: 'Validating',
@@ -27,12 +29,14 @@ export class JobsService {
       jobId: job._id,
       input: job.input,
     });
-
-    return job;
+    
+    return Utils.publicResponse(job);
   }
 
-  async findAll(): Promise<Job[]> {
-    return this.jobModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(): Promise<JobResponse[]> {
+    const job =  await this.jobModel.find().sort({ createdAt: -1 }).exec();
+    return  Utils.publicResponse(job);
+
   }
 
   async updateStatus(jobId: string, status: string): Promise<void> {

@@ -4,7 +4,7 @@ import {
     WebSocketServer,
   } from '@nestjs/websockets';
   import { Server } from 'socket.io';
-  import { JobStatusDto } from './dto/job-status.dto';
+  import { JobStatusDto } from '../common/dto/request/job-status.dto';
   
   @WebSocketGateway({ cors: true })
   export class JobsGateway {

@@ -4,7 +4,7 @@ import { KafkaService } from '../kafka/kafka.service';
 import { JobsService } from './jobs.service';
 import { JobsGateway } from './jobs.gateway';
 import { ConfigService } from '@nestjs/config';
-import { JobStatusDto } from './dto/job-status.dto';
+import { JobStatusDto } from '../common/dto/request/job-status.dto';
 import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class JobsProcessor implements OnModuleInit {
