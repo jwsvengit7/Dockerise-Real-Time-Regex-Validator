@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { KafkaService } from '../kafka/kafka.service';
 import { JobsService } from './jobs.service';
 import { JobsGateway } from './jobs.gateway';
 import { ConfigService } from '@nestjs/config';
 import { JobStatusDto } from './dto/job-status.dto';
 import { RedisService } from 'src/redis/redis.service';
-
+@Injectable()
 export class JobsProcessor implements OnModuleInit {
   constructor(
     private readonly kafkaService: KafkaService,

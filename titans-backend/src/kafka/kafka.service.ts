@@ -11,7 +11,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   constructor() {
     this.kafka = new Kafka({
       clientId: 'regex-validator',
-      brokers: ['kafka:9092'], // Docker Compose hostname
+      brokers: ['kafka:9093'],
     });
 
     this.producer = this.kafka.producer();
