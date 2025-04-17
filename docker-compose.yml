@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # MongoDB Service
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - app-network
+
+  # Zookeeper (Required for Kafka)
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - app-network
+
+  # Kafka Broker
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9093:9093"  # Internal communication only
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INSIDE://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
+
+  # NestJS Backend (Internal-only)
+  backend:
+    build:
+      context: ./titans-backend
+      dockerfile: Dockerfile
+    container_name: nestjs_backend
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/regex-validator
+      - REDIS_HOST=redis
+      - KAFKA_BROKER=kafka:9093
+      - PROCESS_DELAY_MS=2000
+      - REGEX_PATTERN=^[a-zA-Z0-9]+$
+    depends_on:
+      - mongo
+      - redis
+      - kafka
+    networks:
+      - app-network
+
+  # React Frontend (ONLY EXPOSED SERVICE)
+  frontend:
+    build:
+      context: ./titans-frontend
+      dockerfile: Dockerfile
+    container_name: react_frontend
+    ports:
+      - "61234:80"  # Only exposed host port
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
