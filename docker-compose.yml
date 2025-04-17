@@ -1,10 +1,12 @@
 version: '3.8'
 
 services:
-  # MongoDB Service
+  # MongoDB  ===============>
   mongo:
     image: mongo:latest
     container_name: mongo
+    ports:
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
@@ -13,14 +15,14 @@ services:
     networks:
       - app-network
 
-  # Redis Service
+  # Redis  ===============>
   redis:
     image: redis:alpine
     container_name: redis
     networks:
       - app-network
 
-  # Zookeeper (Required for Kafka)
+  # Zookeeper  ===============>
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper
@@ -29,12 +31,12 @@ services:
     networks:
       - app-network
 
-  # Kafka Broker
+  # Kafka Broker   ===============>
   kafka:
     image: wurstmeister/kafka
     container_name: kafka
     ports:
-      - "9093:9093"  # Internal communication only
+      - "9093:9093" 
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -47,14 +49,16 @@ services:
     networks:
       - app-network
 
-  # NestJS Backend (Internal-only)
+  # NestJS Backend ===============>
   backend:
     build:
       context: ./titans-backend
       dockerfile: Dockerfile
     container_name: nestjs_backend
+    ports:
+      - "3000:3000"
     environment:
-      - MONGODB_URI=mongodb://mongo:27017/regex-validator
+      - MONGODB_URI=mongodb://root:root@mongo:27017/regex-validator?authSource=admin
       - REDIS_HOST=redis
       - KAFKA_BROKER=kafka:9093
       - PROCESS_DELAY_MS=2000
@@ -66,14 +70,14 @@ services:
     networks:
       - app-network
 
-  # React Frontend (ONLY EXPOSED SERVICE)
+  # React Frontend ===============>
   frontend:
     build:
       context: ./titans-frontend
       dockerfile: Dockerfile
     container_name: react_frontend
     ports:
-      - "61234:80"  # Only exposed host port
+      - "61234:80"  
     depends_on:
       - backend
     networks:
