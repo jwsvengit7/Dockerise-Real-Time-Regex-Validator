@@ -17,8 +17,10 @@ export class JobsService {
   ) {}
 
   async createJob(dto: CreateJobDto): Promise<JobResponse> {
+    const regexPattern = process.env.REGEX_PATTERN;
     const job = new this.jobModel({
       input: dto.input,
+      regexPattern, 
       status: 'Validating',
       createdAt: new Date(),
     });
@@ -28,6 +30,7 @@ export class JobsService {
     await this.kafkaService.produce('regex-jobs', {
       jobId: job._id,
       input: job.input,
+      
     });
     
     return Utils.publicResponse(job);

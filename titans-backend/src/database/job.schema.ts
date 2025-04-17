@@ -14,6 +14,8 @@ export class Job {
 
   @Prop()
   regexUsed: string;
+  @Prop()
+  createdAt:Date;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);
