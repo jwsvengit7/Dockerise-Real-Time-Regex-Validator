@@ -14,7 +14,7 @@ export class JobsController {
    * @returns The created job
    */
   @Post("/create")
-  @HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body() createJobDto: CreateJobDto): Promise<JobResponse> {
     return this.jobsService.createJob(createJobDto);
   }

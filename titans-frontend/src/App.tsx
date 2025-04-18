@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
-import './App.css'; // Import normal CSS
+import './App.css'; 
 
 const socket = io('ws://localhost:3000');
 

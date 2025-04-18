@@ -8,8 +8,37 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f3f2ef;
+  /* background-color: rgba(255, 255, 255, 0.1); */
+  background-color: #011324;
+
 }
+
+
+
+.app-box {
+  width: 100%;
+  max-width: 700px;
+  padding: 30px;
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(-45deg, #0a66c2, #003366, #002244, #0a66c2);
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 
 .container {
   min-height: 100vh;
@@ -18,14 +47,6 @@ body {
   padding: 40px 20px;
 }
 
-.app-box {
-  width: 100%;
-  max-width: 700px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  padding: 30px;
-}
 
 .title {
   font-size: 24px;
@@ -94,4 +115,28 @@ body {
 
 .status.pending {
   color: orange;
+}
+
+
+.title, .subtitle, .job-card p {
+  color: #fff;
+}
+
+.text-input {
+  background-color: #fff;
+  color: #000;
+}
+
+.submit-btn {
+  background-color: #ffffff;
+  color: #0a66c2;
+}
+
+.submit-btn:hover {
+  background-color: #e6e6e6;
+}
+
+.job-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
